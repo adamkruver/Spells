@@ -4,9 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Sources.Frameworks.StateMachines
 {
-    using IStateMachineBuilder = IFiniteStateMachineBuilder<FiniteStateMachine>;
-
-    public class FiniteStateMachineBuilder : IStateMachineBuilder
+    public class FiniteStateMachineBuilder
     {
         private readonly Dictionary<Type, IFiniteState> _states;
         private readonly Dictionary<(Type, Type), Func<bool>> _transitions;
@@ -21,7 +19,7 @@ namespace Sources.Frameworks.StateMachines
 
         public Type LastRegisteredState { get; private set; }
 
-        public IStateMachineBuilder RegisterState(IFiniteState state)
+        public FiniteStateMachineBuilder RegisterState(IFiniteState state)
         {
             Type stateType = state.GetType();
 
@@ -33,7 +31,7 @@ namespace Sources.Frameworks.StateMachines
             return this;
         }
 
-        public IStateMachineBuilder AddTransition<T>(Type from, Func<bool> condition) where T : class, IFiniteState
+        public FiniteStateMachineBuilder AddTransition<T>(Type from, Func<bool> condition) where T : class, IFiniteState
         {
             (Type Source, Type Target) nodeData = (from, typeof(T));
 
@@ -50,10 +48,10 @@ namespace Sources.Frameworks.StateMachines
             return this;
         }
 
-        public IStateMachineBuilder AddTransition<TFrom, TTarget>(Func<bool> condition) where TFrom : class, IFiniteState where TTarget : class, IFiniteState
+        public FiniteStateMachineBuilder AddTransition<TFrom, TTarget>(Func<bool> condition) where TFrom : class, IFiniteState where TTarget : class, IFiniteState
             => AddTransition<TTarget>(typeof(TFrom), condition);
 
-        public IStateMachineBuilder SetFirstState<T>() where T : class, IFiniteState
+        public FiniteStateMachineBuilder SetFirstState<T>() where T : class, IFiniteState
         {
             Type stateType = typeof(T);
 

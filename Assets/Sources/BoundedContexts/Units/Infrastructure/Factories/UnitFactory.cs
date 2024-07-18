@@ -13,7 +13,7 @@ namespace Sources.BoundedContexts.Units.Infrastructure.Factories
 {
     public class UnitFactory
     {
-        private readonly IFiniteStateMachineBuilder<FiniteStateMachine> _stateMachineBuilder;
+        private readonly FiniteStateMachineBuilder _stateMachineBuilder;
 
         public UnitFactory(FiniteStateMachineBuilder stateMachineBuilder) =>
             _stateMachineBuilder = stateMachineBuilder ?? throw new ArgumentNullException(nameof(stateMachineBuilder));
@@ -34,12 +34,12 @@ namespace Sources.BoundedContexts.Units.Infrastructure.Factories
         //        .RegisterState(new UnitIdleState())
         //        .RegisterState(new UnitDeadState())
         //        .RegisterState(new UnitCastingState())
-                
+
         //        .AddTransition<UnitIdleState, UnitDeadState>(() => false)
         //        .AddTransition<UnitIdleState, UnitCastingState>(() => true)
         //        .AddTransition<UnitDeadState, UnitIdleState>(() => true)
         //        .AddTransition<UnitCastingState, UnitIdleState>(() => false)
-                
+
         //        .SetFirstState<UnitIdleState>()
         //        .Build();
 
