@@ -19,9 +19,23 @@ namespace Sources.Frameworks.StateMachines
             _transitions = new();
         }
 
-        IStateMachineBuilder IStateMachineBuilder.AddTransition<TFrom, TTarget>(Func<bool> condition)
+        public Type LastRegisteredState { get; private set; }
+
+        public IStateMachineBuilder RegisterState(IFiniteState state)
         {
-            (Type Source, Type Target) nodeData = (typeof(TFrom), typeof(TTarget));
+            Type stateType = state.GetType();
+
+            if (_states.TryAdd(stateType, state) == false)
+            {
+                throw new Exception($"State with type {stateType} already registered");
+            }
+
+            return this;
+        }
+
+        public IStateMachineBuilder AddTransition<T>(Type from, Func<bool> condition) where T : class, IFiniteState
+        {
+            (Type Source, Type Target) nodeData = (from, typeof(T));
 
             if (nodeData.Source == nodeData.Target)
             {
@@ -36,25 +50,16 @@ namespace Sources.Frameworks.StateMachines
             return this;
         }
 
-        IStateMachineBuilder IStateMachineBuilder.SetFirstState<T>()
+        public IStateMachineBuilder AddTransition<TFrom, TTarget>(Func<bool> condition) where TFrom : class, IFiniteState where TTarget : class, IFiniteState
+            => AddTransition<TTarget>(typeof(TFrom), condition);
+
+        public IStateMachineBuilder SetFirstState<T>() where T : class, IFiniteState
         {
             Type stateType = typeof(T);
 
             if (_states.TryGetValue(stateType, out _firstState) == false)
             {
                 throw new Exception($"State with type {stateType} is not registered");
-            }
-
-            return this;
-        }
-
-        IStateMachineBuilder IStateMachineBuilder.RegisterState(IFiniteState state)
-        {
-            Type stateType = state.GetType();
-
-            if (_states.TryAdd(stateType, state) == false)
-            {
-                throw new Exception($"State with type {stateType} already registered");
             }
 
             return this;
@@ -109,6 +114,7 @@ namespace Sources.Frameworks.StateMachines
 
             Transition transition = new(targetState, condition);
             sourceState.AddTransition(transition);
+
             return transition;
         }
     }

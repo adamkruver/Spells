@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Frameworks.StateMachines.Extenstions;
+
 using Sources.BoundedContexts.Units.Presentation.Presenters;
 using Sources.BoundedContexts.Units.Presentation.Views;
 using Sources.BoundedContexts.Units.States;
@@ -28,16 +30,30 @@ namespace Sources.BoundedContexts.Units.Infrastructure.Factories
 
         private UnitPresenter CreatePresenter(UnitView view, FiniteStateMachine stateMachine) => new(view, stateMachine);
 
+        //private FiniteStateMachine CreateStateMachine() => _stateMachineBuilder
+        //        .RegisterState(new UnitIdleState())
+        //        .RegisterState(new UnitDeadState())
+        //        .RegisterState(new UnitCastingState())
+                
+        //        .AddTransition<UnitIdleState, UnitDeadState>(() => false)
+        //        .AddTransition<UnitIdleState, UnitCastingState>(() => true)
+        //        .AddTransition<UnitDeadState, UnitIdleState>(() => true)
+        //        .AddTransition<UnitCastingState, UnitIdleState>(() => false)
+                
+        //        .SetFirstState<UnitIdleState>()
+        //        .Build();
+
         private FiniteStateMachine CreateStateMachine() => _stateMachineBuilder
                 .RegisterState(new UnitIdleState())
+                    .AddTransitionToLast<UnitDeadState>(() => false)
+                    .AddTransitionToLast<UnitCastingState>(() => true)
+
                 .RegisterState(new UnitDeadState())
+                    .AddTransitionToLast<UnitIdleState>(() => true)
+
                 .RegisterState(new UnitCastingState())
-                
-                .AddTransition<UnitIdleState, UnitDeadState>(() => false)
-                .AddTransition<UnitIdleState, UnitCastingState>(() => true)
-                .AddTransition<UnitDeadState, UnitIdleState>(() => true)
-                .AddTransition<UnitCastingState, UnitIdleState>(() => false)
-                
+                    .AddTransitionToLast<UnitIdleState>(() => false)
+
                 .SetFirstState<UnitIdleState>()
                 .Build();
     }
