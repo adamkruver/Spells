@@ -2,6 +2,6 @@
 {
     public interface ITransitionOwner
     {
-        void AddTransition(ITransition transition);
+        void AddTransition(ITransition<IFiniteState> transition);
     }
 }

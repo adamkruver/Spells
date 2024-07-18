@@ -5,14 +5,14 @@ namespace Sources.Frameworks.StateMachines
 {
     public abstract class FiniteState : IFiniteState, ITransitionOwner
     {
-        private readonly List<ITransition> _transitions;
+        private readonly List<ITransition<IFiniteState>> _transitions;
 
         protected FiniteState()
         {
             _transitions = new();
         }
 
-        protected FiniteState(IEnumerable<ITransition> transitions)
+        protected FiniteState(IEnumerable<ITransition<IFiniteState>> transitions)
         {
             _transitions = transitions.ToList();
         }
@@ -26,7 +26,7 @@ namespace Sources.Frameworks.StateMachines
             return state != null;
         }
 
-        public void AddTransition(ITransition transition)
+        public void AddTransition(ITransition<IFiniteState> transition)
         {
             if (_transitions.Contains(transition))
             {

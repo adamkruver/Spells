@@ -44,14 +44,14 @@ namespace Sources.BoundedContexts.Units.Infrastructure.Factories
         //        .Build();
 
         private FiniteStateMachine CreateStateMachine() => _stateMachineBuilder
-                .RegisterState(new UnitIdleState())
+                .AddState(new UnitIdleState())
                     .AddTransitionToLast<UnitDeadState>(() => false)
                     .AddTransitionToLast<UnitCastingState>(() => true)
 
-                .RegisterState(new UnitDeadState())
+                .AddState(new UnitDeadState())
                     .AddTransitionToLast<UnitIdleState>(() => true)
 
-                .RegisterState(new UnitCastingState())
+                .AddState(new UnitCastingState())
                     .AddTransitionToLast<UnitIdleState>(() => false)
 
                 .SetFirstState<UnitIdleState>()

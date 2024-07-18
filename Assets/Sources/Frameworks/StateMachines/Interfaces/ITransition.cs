@@ -1,8 +1,10 @@
+using Frameworks.StateMachines;
+
 namespace Sources.Frameworks.StateMachines
 {
-    public interface ITransition
+    public interface ITransition<T> where T : IState
     {
         bool CanTransit { get; }
-        IFiniteState NextState { get; }
+        T NextState { get; }
     }
 }

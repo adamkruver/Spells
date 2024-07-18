@@ -1,25 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
-using Frameworks.StateMachines;
 using Frameworks.StateMachines.Interfaces;
 
 using Sources.Frameworks.LifeCycles;
 
 namespace Sources.Frameworks.StateMachines
 {
-    public class FiniteStateMachine : IFiniteStateMachine, IStateChanger<IFiniteState>, IUpdatable
+    public class FiniteStateMachine : IFiniteStateMachine, IUpdatable
     {
         private readonly HashSet<IFiniteState> _statesHistory = new();
 
         public IFiniteState CurrentState { get; private set; }
-
-        void IStateChanger<IFiniteState>.Change(IFiniteState state)
-        {
-            ExitState();
-            CurrentState = state;
-            EnterState();
-        }
 
         public void Start(IFiniteState state) => Change(state);
 
@@ -48,26 +41,18 @@ namespace Sources.Frameworks.StateMachines
             CurrentState.Update(deltaTime);
         }
 
-        private void EnterState()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void EnterState() => CurrentState?.Enter();       
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ExitState() => CurrentState?.Exit();
+        
+
+        private void Change(IFiniteState state)
         {
-            if (CurrentState == null)
-            {
-                return;
-            }
-
-            CurrentState.Enter();
+            ExitState();
+            CurrentState = state;
+            EnterState();
         }
-
-        private void ExitState()
-        {
-            if (CurrentState == null)
-            {
-                return;
-            }
-
-            CurrentState.Exit();
-        }
-
-        private void Change(IFiniteState state) => ((IStateChanger<IFiniteState>) this).Change(state);
     }
 }

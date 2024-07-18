@@ -12,7 +12,7 @@ namespace Sources.BoundedContexts.Units.States
         {
         }
 
-        public UnitIdleState(IEnumerable<ITransition> transitions) : base(transitions)
+        public UnitIdleState(IEnumerable<ITransition<IFiniteState>> transitions) : base(transitions)
         {
             
         }

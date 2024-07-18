@@ -2,7 +2,7 @@
 
 namespace Sources.Frameworks.StateMachines
 {
-    public class Transition : ITransition
+    public class Transition : ITransition<IFiniteState>
     {
         private readonly Func<bool> _condition;
 

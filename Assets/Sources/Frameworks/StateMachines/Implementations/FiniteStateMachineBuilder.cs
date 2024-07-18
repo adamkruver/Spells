@@ -6,10 +6,10 @@ namespace Sources.Frameworks.StateMachines
 {
     public class FiniteStateMachineBuilder
     {
-        private readonly Dictionary<Type, IFiniteState> _states;
+        private readonly Dictionary<Type, FiniteState> _states;
         private readonly Dictionary<(Type, Type), Func<bool>> _transitions;
 
-        private IFiniteState _firstState;
+        private FiniteState _firstState;
 
         public FiniteStateMachineBuilder()
         {
@@ -17,15 +17,15 @@ namespace Sources.Frameworks.StateMachines
             _transitions = new();
         }
 
-        public Type LastRegisteredState { get; private set; }
+        public Type LastAddedState { get; private set; }
 
-        public FiniteStateMachineBuilder RegisterState(IFiniteState state)
+        public FiniteStateMachineBuilder AddState(FiniteState state)
         {
             Type stateType = state.GetType();
 
             if (_states.TryAdd(stateType, state) == false)
             {
-                throw new Exception($"State with type {stateType} already registered");
+                throw new Exception($"State with type {stateType} already added");
             }
 
             return this;
@@ -100,12 +100,12 @@ namespace Sources.Frameworks.StateMachines
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Transition CreateTransition((Type Source, Type Target) transitionData, Func<bool> condition)
         {
-            if (_states.TryGetValue(transitionData.Source, out IFiniteState sourceState))
+            if (_states.TryGetValue(transitionData.Source, out FiniteState sourceState))
             {
                 throw new Exception($"Can't create transition from unregistered state of type {transitionData.Source}.");
             }
 
-            if (_states.TryGetValue(transitionData.Target, out IFiniteState targetState))
+            if (_states.TryGetValue(transitionData.Target, out FiniteState targetState))
             {
                 throw new Exception($"Can't create transition to unregistered state of type {transitionData.Target}.");
             }

@@ -8,7 +8,7 @@ namespace Frameworks.StateMachines.Extenstions
     {
         public static FiniteStateMachineBuilder AddTransitionToLast<T>(this FiniteStateMachineBuilder stateMachineBuilder, Func<bool> condition) where T : class, IFiniteState
         {
-            stateMachineBuilder.AddTransition<T>(stateMachineBuilder.LastRegisteredState, condition);
+            stateMachineBuilder.AddTransition<T>(stateMachineBuilder.LastAddedState, condition);
             return stateMachineBuilder;
         }
     }
