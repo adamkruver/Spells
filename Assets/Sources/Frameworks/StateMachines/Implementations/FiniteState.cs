@@ -3,9 +3,19 @@ using System.Linq;
 
 namespace Sources.Frameworks.StateMachines
 {
-    public abstract class FiniteState : IFiniteState
+    public abstract class FiniteState : IFiniteState, ITransitionOwner
     {
-        private readonly List<ITransition> _transitions = new List<ITransition>();
+        private readonly List<ITransition> _transitions;
+
+        protected FiniteState()
+        {
+            _transitions = new();
+        }
+
+        protected FiniteState(IEnumerable<ITransition> transitions)
+        {
+            _transitions = transitions.ToList();
+        }
 
         bool IFiniteState.CanTransit(out IFiniteState state)
         {
@@ -16,10 +26,12 @@ namespace Sources.Frameworks.StateMachines
             return state != null;
         }
 
-        public void Add(ITransition transition)
+        public void AddTransition(ITransition transition)
         {
             if (_transitions.Contains(transition))
+            {
                 return;
+            }
 
             _transitions.Add(transition);
         }
