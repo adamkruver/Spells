@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 
 using Frameworks.StateMachines;
+using Frameworks.StateMachines.Interfaces;
 
 using Sources.Frameworks.LifeCycles;
 
 namespace Sources.Frameworks.StateMachines
 {
-    public class FiniteStateMachine : IStateMachine<IFiniteState>, IStateChanger<IFiniteState>, IUpdatable
+    public class FiniteStateMachine : IFiniteStateMachine, IStateChanger<IFiniteState>, IUpdatable
     {
         private readonly HashSet<IFiniteState> _statesHistory = new();
 

@@ -11,7 +11,7 @@ namespace Sources.BoundedContexts.Units.Infrastructure.Factories
 {
     public class UnitFactory
     {
-        private readonly IFiniteStateMachineBuilder _stateMachineBuilder;
+        private readonly IFiniteStateMachineBuilder<FiniteStateMachine> _stateMachineBuilder;
 
         public UnitFactory(FiniteStateMachineBuilder stateMachineBuilder) =>
             _stateMachineBuilder = stateMachineBuilder ?? throw new ArgumentNullException(nameof(stateMachineBuilder));

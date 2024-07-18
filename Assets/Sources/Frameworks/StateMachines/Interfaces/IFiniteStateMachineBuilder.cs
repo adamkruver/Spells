@@ -1,14 +1,16 @@
 using System;
 
+using Frameworks.StateMachines.Interfaces;
+
 namespace Sources.Frameworks.StateMachines
 {
-    public interface IFiniteStateMachineBuilder
+    public interface IFiniteStateMachineBuilder<out TMachine> where TMachine : IFiniteStateMachine
     {
-        IFiniteStateMachineBuilder RegisterState(IFiniteState state);
-        IFiniteStateMachineBuilder SetFirstState<T>() where T : class, IFiniteState;
-        IFiniteStateMachineBuilder AddTransition<TFrom, TTarget>(Func<bool> condition) where TFrom : class, IFiniteState where TTarget : class, IFiniteState;
+        IFiniteStateMachineBuilder<TMachine> RegisterState(IFiniteState state);
+        IFiniteStateMachineBuilder<TMachine> SetFirstState<T>() where T : class, IFiniteState;
+        IFiniteStateMachineBuilder<TMachine> AddTransition<TFrom, TTarget>(Func<bool> condition) where TFrom : class, IFiniteState where TTarget : class, IFiniteState;
 
-        FiniteStateMachine Build();
+        TMachine Build();
         void Clear();
     }
 }

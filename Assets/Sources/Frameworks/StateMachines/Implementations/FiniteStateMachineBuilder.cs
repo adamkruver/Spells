@@ -4,7 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace Sources.Frameworks.StateMachines
 {
-    public class FiniteStateMachineBuilder : IFiniteStateMachineBuilder
+    using IStateMachineBuilder = IFiniteStateMachineBuilder<FiniteStateMachine>;
+
+    public class FiniteStateMachineBuilder : IStateMachineBuilder
     {
         private readonly Dictionary<Type, IFiniteState> _states;
         private readonly Dictionary<(Type, Type), Func<bool>> _transitions;
@@ -17,7 +19,7 @@ namespace Sources.Frameworks.StateMachines
             _transitions = new();
         }
 
-        IFiniteStateMachineBuilder IFiniteStateMachineBuilder.AddTransition<TFrom, TTarget>(Func<bool> condition)
+        IStateMachineBuilder IStateMachineBuilder.AddTransition<TFrom, TTarget>(Func<bool> condition)
         {
             (Type Source, Type Target) nodeData = (typeof(TFrom), typeof(TTarget));
 
@@ -34,7 +36,7 @@ namespace Sources.Frameworks.StateMachines
             return this;
         }
 
-        IFiniteStateMachineBuilder IFiniteStateMachineBuilder.SetFirstState<T>()
+        IStateMachineBuilder IStateMachineBuilder.SetFirstState<T>()
         {
             Type stateType = typeof(T);
 
@@ -46,7 +48,7 @@ namespace Sources.Frameworks.StateMachines
             return this;
         }
 
-        IFiniteStateMachineBuilder IFiniteStateMachineBuilder.RegisterState(IFiniteState state)
+        IStateMachineBuilder IStateMachineBuilder.RegisterState(IFiniteState state)
         {
             Type stateType = state.GetType();
 
@@ -65,7 +67,7 @@ namespace Sources.Frameworks.StateMachines
                 throw new Exception("First state is not set");
             }
 
-            var stateMachine = new FiniteStateMachine();
+            FiniteStateMachine stateMachine = new();
 
             CreateTransitions();
 
