@@ -19,7 +19,7 @@ namespace Sources.Frameworks.StateMachines
             if(_states.Keys.Contains(stateType) == false)
                 throw new Exception($"State with type {stateType} is not registered");
 
-            state.Add(new Transition(_states[stateType], condition));
+            state.Add(new Transition(_states[stateType], condition)); 
         }
 
         public IFiniteStateMachineBuilder SetFirstState<T>()
