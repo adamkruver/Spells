@@ -2,14 +2,15 @@
 
 namespace Sources.Frameworks.StateMachines
 {
-    public class Transition : ITransition
+    public class Transition : ITransition<IFiniteState>
     {
         private readonly Func<bool> _condition;
 
         public Transition(IFiniteState nextState, Func<bool> condition)
         {
-            NextState = nextState ?? throw new ArgumentNullException(nameof(nextState));
             _condition = condition ?? throw new ArgumentNullException(nameof(condition));
+
+            NextState = nextState ?? throw new ArgumentNullException(nameof(nextState));
         }
 
         public bool CanTransit => _condition.Invoke();

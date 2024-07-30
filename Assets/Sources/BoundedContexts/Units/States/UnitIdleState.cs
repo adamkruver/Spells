@@ -1,5 +1,4 @@
-﻿using System;
-using Sources.Frameworks.StateMachines;
+﻿using Sources.Frameworks.StateMachines;
 
 namespace Sources.BoundedContexts.Units.States
 {

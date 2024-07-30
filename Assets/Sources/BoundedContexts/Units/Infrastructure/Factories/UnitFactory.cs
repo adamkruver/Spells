@@ -1,9 +1,12 @@
 ﻿using System;
+
+using Frameworks.StateMachines.Extenstions;
+
 using Sources.BoundedContexts.Units.Presentation.Presenters;
 using Sources.BoundedContexts.Units.Presentation.Views;
 using Sources.BoundedContexts.Units.States;
 using Sources.Frameworks.StateMachines;
-using Sources.Frameworks.StateMachines.Extensions;
+
 using Object = UnityEngine.Object;
 
 namespace Sources.BoundedContexts.Units.Infrastructure.Factories
@@ -12,7 +15,7 @@ namespace Sources.BoundedContexts.Units.Infrastructure.Factories
     {
         private readonly FiniteStateMachineBuilder _stateMachineBuilder;
 
-        public UnitFactory(FiniteStateMachineBuilder stateMachineBuilder) => 
+        public UnitFactory(FiniteStateMachineBuilder stateMachineBuilder) =>
             _stateMachineBuilder = stateMachineBuilder ?? throw new ArgumentNullException(nameof(stateMachineBuilder));
 
         public IUnitView Create(UnitView unitViewPrefab)
@@ -25,16 +28,32 @@ namespace Sources.BoundedContexts.Units.Infrastructure.Factories
             return view;
         }
 
-        private UnitPresenter CreatePresenter(UnitView view, FiniteStateMachine stateMachine) => 
-            new UnitPresenter(view, stateMachine);
+        private UnitPresenter CreatePresenter(UnitView view, FiniteStateMachine stateMachine) => new(view, stateMachine);
 
-        private FiniteStateMachine CreateStateMachine() =>
-            _stateMachineBuilder
+        //private FiniteStateMachine CreateStateMachine() => _stateMachineBuilder
+        //        .RegisterState(new UnitIdleState())
+        //        .RegisterState(new UnitDeadState())
+        //        .RegisterState(new UnitCastingState())
+
+        //        .AddTransition<UnitIdleState, UnitDeadState>(() => false)
+        //        .AddTransition<UnitIdleState, UnitCastingState>(() => true)
+        //        .AddTransition<UnitDeadState, UnitIdleState>(() => true)
+        //        .AddTransition<UnitCastingState, UnitIdleState>(() => false)
+
+        //        .SetFirstState<UnitIdleState>()
+        //        .Build();
+
+        private FiniteStateMachine CreateStateMachine() => _stateMachineBuilder
                 .AddState(new UnitIdleState())
-                .AddTransition(() => true)
-                .AddTransition(() => false)
+                    .AddTransitionToLast<UnitDeadState>(() => false)
+                    .AddTransitionToLast<UnitCastingState>(() => true)
+
                 .AddState(new UnitDeadState())
-                .AddTransition(() => true)
+                    .AddTransitionToLast<UnitIdleState>(() => true)
+
+                .AddState(new UnitCastingState())
+                    .AddTransitionToLast<UnitIdleState>(() => false)
+
                 .SetFirstState<UnitIdleState>()
                 .Build();
     }
