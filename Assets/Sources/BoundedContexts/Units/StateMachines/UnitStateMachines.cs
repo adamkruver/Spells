@@ -4,27 +4,32 @@ using System.Linq;
 
 using Frameworks.StateMachines;
 
-using Sources.Frameworks.LifeCycles;
+using Sources.BoundedContexts.Units.StateMachines;
 using Sources.Frameworks.StateMachines;
 
-using UnityEngine;
-
-namespace Sources.BoundedContexts.Units.StateMachines
+namespace Server.Combat.Domain.Implementations.Units.Components
 {
-    public class UnitStateMachine : IStateMachine<IUnitState>, IUpdatable
+    public class UnitStateMachine : IStateMachine<IUnitState>
     {
-        private readonly Dictionary<IUnitState, ITransition<IUnitState>[]> _stateMap;
+        private readonly IStateCollection<IUnitState> _states;
+
         private readonly HashSet<IUnitState> _stateHistory;
+        private readonly int _maxRecursionDepth;
 
         private IUnitState _currentState;
-        private ITransition<IUnitState>[] _activeTransitions;
+        private IEnumerable<ITransition<IUnitState>> _activeTransitions;
 
-        public UnitStateMachine(Dictionary<IUnitState, ITransition<IUnitState>[]> transitions)
+        private int _currentRecursionDepth;
+
+        public UnitStateMachine(IStateCollection<IUnitState> states)
         {
-            _stateMap = transitions;
+            _states = states;
 
             _stateHistory = new();
-            _activeTransitions = Array.Empty<ITransition<IUnitState>>();
+            _maxRecursionDepth = 2;
+
+            _currentState = null;
+            _activeTransitions = Enumerable.Empty<ITransition<IUnitState>>();
         }
 
         public IUnitState CurrentState
@@ -32,23 +37,27 @@ namespace Sources.BoundedContexts.Units.StateMachines
             get => _currentState;
             private set
             {
-                Exit();
+                _currentState?.Exit();
                 _currentState = value;
-                Enter();
+                _activeTransitions = _states.GetTransitions(value);
+                _currentState?.Enter();
             }
         }
 
-        public void Start(IUnitState state)
+        public void Run(IUnitState firstState)
         {
-            if(_stateMap.ContainsKey(state) == false)
+            if (_states.HasState(firstState) == false)
             {
-                throw new InvalidOperationException($"Can't start state machine with missing {state}.");
+                throw new InvalidOperationException($"Can't use external state {firstState}.");
             }
 
-            CurrentState = state;
+            CurrentState = firstState;
         }
 
-        public void Stop() => CurrentState = null;
+        public void Stop()
+        {
+            CurrentState = null;
+        }
 
         public void Update(float deltaTime)
         {
@@ -57,40 +66,43 @@ namespace Sources.BoundedContexts.Units.StateMachines
                 return;
             }
 
-            lock (CurrentState)
-            {
-                CheckTransitions();
-                CurrentState.Update(deltaTime);
-            }
+            UpdateTransitions();
+            CurrentState.Update(deltaTime);
         }
 
-        private void CheckTransitions()
+        private void UpdateTransitions()
         {
-            ITransition<IUnitState> transition;
-            IUnitState nextState;
+            _currentRecursionDepth = 0;
 
-            while ((transition = _activeTransitions.FirstOrDefault(transition => transition.CanTransit)) != null)
+            while (HasNextState(out IUnitState state))
             {
-                nextState = transition.NextState;
-
-                if (_stateHistory.Contains(nextState))
+                if (_stateHistory.Contains(state))
                 {
-                    throw new Exception($"Loop detected in state machine: {nextState}");
+                    if (++_currentRecursionDepth == _maxRecursionDepth)
+                    {
+                        throw new Exception($"Loop detected in state machine: {state}");
+                    }
                 }
 
                 _stateHistory.Add(CurrentState);
-                CurrentState = nextState;
+                CurrentState = state;
             }
 
             _stateHistory.Clear();
         }
 
-        private void Enter()
+        private bool HasNextState(out IUnitState unitState)
         {
-            _activeTransitions = _stateMap.GetValueOrDefault(_currentState, Array.Empty< ITransition<IUnitState>>());
-            _currentState?.Enter();
-        }
+            ITransition<IUnitState> transition;
 
-        private void Exit() => _currentState?.Exit();
+            if ((transition = _activeTransitions.FirstOrDefault(transition => transition.CanTransit)) == null)
+            {
+                unitState = null;
+                return false;
+            }
+
+            unitState = transition.NextState;
+            return true;
+        }
     }
 }
