@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Frameworks.StateMachines;
+using Server.Combat.Domain.Units.StateMachine;
 
-using Sources.BoundedContexts.Units.StateMachines;
-using Sources.Frameworks.StateMachines;
+using Utils.Patterns.StateMachine.FinitStateMachine;
 
 namespace Server.Combat.Domain.Implementations.Units.Components
 {
-    public class UnitStateMachine : IStateMachine<IUnitState>
+    public class UnitStateMachine : IUnitStateMachine
     {
         private readonly IStateCollection<IUnitState> _states;
+        private readonly IUnitState _firstState;
 
         private readonly HashSet<IUnitState> _stateHistory;
         private readonly int _maxRecursionDepth;
@@ -21,15 +21,21 @@ namespace Server.Combat.Domain.Implementations.Units.Components
 
         private int _currentRecursionDepth;
 
-        public UnitStateMachine(IStateCollection<IUnitState> states)
+        public UnitStateMachine(IStateCollection<IUnitState> states, IUnitState firstState)
         {
             _states = states;
+
+            if (_states.HasState(firstState) == false)
+            {
+                throw new InvalidOperationException($"Can't use external state {firstState}.");
+            }
 
             _stateHistory = new();
             _maxRecursionDepth = 2;
 
             _currentState = null;
             _activeTransitions = Enumerable.Empty<ITransition<IUnitState>>();
+            _firstState = firstState;
         }
 
         public IUnitState CurrentState
@@ -44,14 +50,9 @@ namespace Server.Combat.Domain.Implementations.Units.Components
             }
         }
 
-        public void Run(IUnitState firstState)
+        public void Run()
         {
-            if (_states.HasState(firstState) == false)
-            {
-                throw new InvalidOperationException($"Can't use external state {firstState}.");
-            }
-
-            CurrentState = firstState;
+            CurrentState = _firstState;
         }
 
         public void Stop()

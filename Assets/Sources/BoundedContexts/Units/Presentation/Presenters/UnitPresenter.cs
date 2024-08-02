@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Sources.BoundedContexts.Units.Domain;
+using Sources.BoundedContexts.Units.Presentation.Views;
 using Sources.Frameworks.Mvp;
 using Sources.Frameworks.StateMachines;
 

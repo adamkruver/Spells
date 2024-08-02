@@ -1,5 +1,7 @@
 using System;
 
+using Server.Combat.Domain.Skills;
+
 namespace Sources.BoundedContexts.Units.Domain
 {
     public interface IKillable
@@ -18,9 +20,9 @@ namespace Sources.BoundedContexts.Units.Domain
 
         public ISkillStrategy ActiveCast { get; set; }
 
-        public ISkillStrategyFactory GetAttackSkill()
+        public ISkill GetSkillInSlot(int slotId)
         {
-            throw new NotImplementedException();
+            return null;
         }
     }
 }
