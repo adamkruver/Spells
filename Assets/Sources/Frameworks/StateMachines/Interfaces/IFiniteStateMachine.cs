@@ -1,6 +1,6 @@
-﻿using Sources.Frameworks.StateMachines;
+﻿using Sources.Frameworks.StateMachines.Common;
 
-namespace Frameworks.StateMachines.Interfaces
+namespace Sources.Frameworks.StateMachines.Interfaces
 {
     public interface IFiniteStateMachine : IStateMachine<IFiniteState>
     {

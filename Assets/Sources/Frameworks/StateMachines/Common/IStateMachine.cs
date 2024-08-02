@@ -1,12 +1,7 @@
-﻿namespace Frameworks.StateMachines
+﻿namespace Sources.Frameworks.StateMachines.Common
 {
-    public interface IStateMachine<T> where T : IState
+    public interface IStateMachine<out T> where T : IState
     {
         T CurrentState { get; }
-    }
-
-    public interface IStateChanger<T> where T : IState
-    {
-        void Change(T state);
     }
 }

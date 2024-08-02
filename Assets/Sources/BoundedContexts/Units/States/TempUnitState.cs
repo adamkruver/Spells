@@ -1,15 +1,16 @@
-﻿using Sources.BoundedContexts.Units.Domain;
+﻿using Sources.BoundedContexts.Skills.Domain;
+using Sources.BoundedContexts.Units.Domain;
 using Sources.BoundedContexts.Units.StateMachines;
-using Sources.Frameworks.StateMachines;
+using Sources.Frameworks.StateMachines.Interfaces;
 
-namespace Client.Combat.Infrastructure.Unit.States
+namespace Sources.BoundedContexts.Units.States
 {
     public class ActionBuffer
     {
         public ISkillStrategyFactory NextSkill { get; set; }
     }
 
-    public class Idle : IUnitState
+    public class Idle : IUpdatableState
     {
         public void Enter() { }
 
@@ -18,14 +19,14 @@ namespace Client.Combat.Infrastructure.Unit.States
         public void Update(float deltaTime) { }
     }
 
-    public class Dead : IUnitState
+    public class Dead : IUpdatableState
     {
         public void Enter() { }
         public void Exit() { }
         public void Update(float deltaTime) { }
     }
 
-    public class Casting : IUnitState
+    public class Casting : IUpdatableState
     {
         private readonly ICaster _caster;
         private readonly ActionBuffer _actionBuffer;
@@ -50,7 +51,7 @@ namespace Client.Combat.Infrastructure.Unit.States
         }
     }
 
-    public class IdleToDeadTransition : ITransition<IUnitState>
+    public class IdleToDeadTransition : ITransition<IUpdatableState>
     {
         private readonly IKillable _model;
 
@@ -62,14 +63,14 @@ namespace Client.Combat.Infrastructure.Unit.States
 
         public bool CanTransit => _model.Alive == false;
 
-        public IUnitState NextState { get; }
+        public IUpdatableState NextState { get; }
     }
 
-    public class DeadToIdleTransition : ITransition<IUnitState>
+    public class DeadToIdleTransition : ITransition<IUpdatableState>
     {
         private readonly IKillable _model;
 
-        public DeadToIdleTransition(IUnitState nextState, IKillable model)
+        public DeadToIdleTransition(IUpdatableState nextState, IKillable model)
         {
             _model = model;
             NextState = nextState;
@@ -77,14 +78,14 @@ namespace Client.Combat.Infrastructure.Unit.States
 
         public bool CanTransit => _model.Alive;
 
-        public IUnitState NextState { get; }
+        public IUpdatableState NextState { get; }
     }
 
-    public class IdleToCastingTransition : ITransition<IUnitState>
+    public class IdleToCastingTransition : ITransition<IUpdatableState>
     {
         private readonly ActionBuffer _actionBuffer;
 
-        public IdleToCastingTransition(IUnitState nextState, ActionBuffer actionBuffer)
+        public IdleToCastingTransition(IUpdatableState nextState, ActionBuffer actionBuffer)
         {
             _actionBuffer = actionBuffer;
             NextState = nextState;
@@ -92,14 +93,14 @@ namespace Client.Combat.Infrastructure.Unit.States
 
         public bool CanTransit => _actionBuffer.NextSkill != null;
 
-        public IUnitState NextState { get; }
+        public IUpdatableState NextState { get; }
     }
 
-    public class CastingToIdleTransition : ITransition<IUnitState>
+    public class CastingToIdleTransition : ITransition<IUpdatableState>
     {
         private readonly ICaster _model;
 
-        public CastingToIdleTransition(IUnitState nextState, ICaster model)
+        public CastingToIdleTransition(IUpdatableState nextState, ICaster model)
         {
             _model = model;
             NextState = nextState;
@@ -107,6 +108,6 @@ namespace Client.Combat.Infrastructure.Unit.States
 
         public bool CanTransit => _model.ActiveCast.InProgress == false;
 
-        public IUnitState NextState { get; }
+        public IUpdatableState NextState { get; }
     }
 }

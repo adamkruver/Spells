@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Sources.Frameworks.StateMachines.Interfaces;
 
-namespace Sources.Frameworks.StateMachines
+namespace Sources.Frameworks.StateMachines.Implementations
 {
     public class FiniteStateMachineBuilder
     {
@@ -47,9 +48,6 @@ namespace Sources.Frameworks.StateMachines
 
             return this;
         }
-
-        public FiniteStateMachineBuilder AddTransition<TFrom, TTarget>(Func<bool> condition) where TFrom : class, IFiniteState where TTarget : class, IFiniteState
-            => AddTransition<TTarget>(typeof(TFrom), condition);
 
         public FiniteStateMachineBuilder SetFirstState<T>() where T : class, IFiniteState
         {

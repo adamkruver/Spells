@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-
-using Frameworks.StateMachines.Interfaces;
-
 using Sources.Frameworks.LifeCycles;
+using Sources.Frameworks.StateMachines.Interfaces;
 
-namespace Sources.Frameworks.StateMachines
+namespace Sources.Frameworks.StateMachines.Implementations
 {
     public class FiniteStateMachine : IFiniteStateMachine, IUpdatable
     {

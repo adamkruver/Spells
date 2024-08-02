@@ -1,8 +1,7 @@
-﻿using Frameworks.StateMachines;
+﻿using Sources.Frameworks.LifeCycles;
+using Sources.Frameworks.StateMachines.Common;
 
-using Sources.Frameworks.LifeCycles;
-
-namespace Sources.Frameworks.StateMachines
+namespace Sources.Frameworks.StateMachines.Interfaces
 {
     public interface IFiniteState : IState, ITransitionOwner, IUpdatable
     {

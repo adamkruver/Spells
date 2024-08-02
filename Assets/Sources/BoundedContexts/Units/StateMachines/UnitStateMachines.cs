@@ -1,38 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Sources.Frameworks.LifeCycles;
+using Sources.Frameworks.StateMachines.Common;
+using Sources.Frameworks.StateMachines.Interfaces;
 
-using Frameworks.StateMachines;
-
-using Sources.BoundedContexts.Units.StateMachines;
-using Sources.Frameworks.StateMachines;
-
-namespace Server.Combat.Domain.Implementations.Units.Components
+namespace Sources.BoundedContexts.Units.StateMachines
 {
-    public class UnitStateMachine : IStateMachine<IUnitState>
+    public class UnitStateMachine<T> : IStateMachine<T> where T: IUpdatableState
     {
-        private readonly IStateCollection<IUnitState> _states;
-
-        private readonly HashSet<IUnitState> _stateHistory;
+        private readonly IStateCollection<T> _states;
+        private readonly HashSet<T> _stateHistory;
+        private readonly T _firstState;
         private readonly int _maxRecursionDepth;
 
-        private IUnitState _currentState;
-        private IEnumerable<ITransition<IUnitState>> _activeTransitions;
+        private T _currentState;
+        private IEnumerable<ITransition<T>> _activeTransitions;
 
         private int _currentRecursionDepth;
 
-        public UnitStateMachine(IStateCollection<IUnitState> states)
+        public UnitStateMachine(IStateCollection<T> states, T firstState)
         {
-            _states = states;
+            _states = states ?? throw new ArgumentNullException(nameof(states));
+            _firstState = firstState ?? throw new ArgumentNullException(nameof(firstState));
+
+            if (_states.HasState(firstState) == false)
+                throw new ArgumentException("Can't use external state.", nameof(firstState));
 
             _stateHistory = new();
             _maxRecursionDepth = 2;
 
-            _currentState = null;
-            _activeTransitions = Enumerable.Empty<ITransition<IUnitState>>();
+            _currentState = default;
+            _activeTransitions = Enumerable.Empty<ITransition<T>>();
         }
 
-        public IUnitState CurrentState
+        public T CurrentState
         {
             get => _currentState;
             private set
@@ -44,27 +46,16 @@ namespace Server.Combat.Domain.Implementations.Units.Components
             }
         }
 
-        public void Run(IUnitState firstState)
-        {
-            if (_states.HasState(firstState) == false)
-            {
-                throw new InvalidOperationException($"Can't use external state {firstState}.");
-            }
+        public void Run() =>
+            CurrentState = _firstState;
 
-            CurrentState = firstState;
-        }
-
-        public void Stop()
-        {
-            CurrentState = null;
-        }
+        public void Stop() =>
+            CurrentState = default;
 
         public void Update(float deltaTime)
         {
             if (CurrentState == null)
-            {
                 return;
-            }
 
             UpdateTransitions();
             CurrentState.Update(deltaTime);
@@ -74,7 +65,7 @@ namespace Server.Combat.Domain.Implementations.Units.Components
         {
             _currentRecursionDepth = 0;
 
-            while (HasNextState(out IUnitState state))
+            while (HasNextState(out T state))
             {
                 if (_stateHistory.Contains(state))
                 {
@@ -91,18 +82,16 @@ namespace Server.Combat.Domain.Implementations.Units.Components
             _stateHistory.Clear();
         }
 
-        private bool HasNextState(out IUnitState unitState)
+        private bool HasNextState(out T updatableState)
         {
-            ITransition<IUnitState> transition;
+            ITransition<T> transition = _activeTransitions.FirstOrDefault(transition => transition.CanTransit);
 
-            if ((transition = _activeTransitions.FirstOrDefault(transition => transition.CanTransit)) == null)
-            {
-                unitState = null;
-                return false;
-            }
+            updatableState = default;
+            
+            if (transition is not null)
+                updatableState = transition.NextState;
 
-            unitState = transition.NextState;
-            return true;
+            return updatableState != null;
         }
     }
 }

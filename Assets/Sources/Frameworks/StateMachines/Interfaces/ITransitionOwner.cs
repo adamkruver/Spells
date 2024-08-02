@@ -1,4 +1,4 @@
-﻿namespace Sources.Frameworks.StateMachines
+﻿namespace Sources.Frameworks.StateMachines.Interfaces
 {
     public interface ITransitionOwner
     {

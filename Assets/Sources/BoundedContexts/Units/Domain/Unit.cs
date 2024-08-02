@@ -1,4 +1,5 @@
 using System;
+using Sources.BoundedContexts.Skills.Domain;
 
 namespace Sources.BoundedContexts.Units.Domain
 {

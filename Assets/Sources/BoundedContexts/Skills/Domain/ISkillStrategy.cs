@@ -1,4 +1,6 @@
-namespace Sources.BoundedContexts.Units.Domain
+using Sources.BoundedContexts.Units.Domain;
+
+namespace Sources.BoundedContexts.Skills.Domain
 {
     public interface ISkillStrategy
     {

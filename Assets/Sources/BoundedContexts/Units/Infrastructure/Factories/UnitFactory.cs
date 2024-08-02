@@ -1,12 +1,10 @@
 ﻿using System;
-
-using Frameworks.StateMachines.Extenstions;
-
 using Sources.BoundedContexts.Units.Presentation.Presenters;
 using Sources.BoundedContexts.Units.Presentation.Views;
 using Sources.BoundedContexts.Units.States;
 using Sources.Frameworks.StateMachines;
-
+using Sources.Frameworks.StateMachines.Extensions;
+using Sources.Frameworks.StateMachines.Implementations;
 using Object = UnityEngine.Object;
 
 namespace Sources.BoundedContexts.Units.Infrastructure.Factories
@@ -47,13 +45,10 @@ namespace Sources.BoundedContexts.Units.Infrastructure.Factories
                 .AddState(new UnitIdleState())
                     .AddTransitionToLast<UnitDeadState>(() => false)
                     .AddTransitionToLast<UnitCastingState>(() => true)
-
                 .AddState(new UnitDeadState())
                     .AddTransitionToLast<UnitIdleState>(() => true)
-
                 .AddState(new UnitCastingState())
                     .AddTransitionToLast<UnitIdleState>(() => false)
-
                 .SetFirstState<UnitIdleState>()
                 .Build();
     }

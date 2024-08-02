@@ -1,6 +1,7 @@
 ﻿using System;
+using Sources.Frameworks.StateMachines.Interfaces;
 
-namespace Sources.Frameworks.StateMachines
+namespace Sources.Frameworks.StateMachines.Implementations
 {
     public class Transition : ITransition<IFiniteState>
     {

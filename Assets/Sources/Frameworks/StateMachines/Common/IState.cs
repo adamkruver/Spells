@@ -1,4 +1,4 @@
-﻿namespace Frameworks.StateMachines
+﻿namespace Sources.Frameworks.StateMachines.Common
 {
     public interface IState
     {
