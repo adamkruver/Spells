@@ -1,16 +1,21 @@
-﻿using Sources.BoundedContexts.Units.Domain;
-using Sources.BoundedContexts.Units.StateMachines;
-using Sources.Frameworks.StateMachines;
+﻿using Server.Combat.Domain.Skills;
+using Server.Combat.Domain.Units.StateMachine;
+
+using Sources.BoundedContexts.Units.Domain;
+
+using Utils.Patterns.Factory;
 
 namespace Client.Combat.Infrastructure.Unit.States
 {
     public class ActionBuffer
     {
-        public ISkillStrategyFactory NextSkill { get; set; }
+        public Factory<ISkillHandler, ISkill> NextSkill { get; set; }
     }
 
     public class Idle : IUnitState
     {
+        public bool CanCast(ISkill spell, SkillModification spellModification) => true;
+
         public void Enter() { }
 
         public void Exit() { }
@@ -20,6 +25,8 @@ namespace Client.Combat.Infrastructure.Unit.States
 
     public class Dead : IUnitState
     {
+        public bool CanCast(ISkill spell, SkillModification spellModification) => false;
+
         public void Enter() { }
         public void Exit() { }
         public void Update(float deltaTime) { }
@@ -27,86 +34,35 @@ namespace Client.Combat.Infrastructure.Unit.States
 
     public class Casting : IUnitState
     {
-        private readonly ICaster _caster;
+        private readonly ICaster _model;
         private readonly ActionBuffer _actionBuffer;
 
         public Casting(ICaster caster, ActionBuffer actionBuffer)
         {
-            _caster = caster;
+            _model = caster;
             _actionBuffer = actionBuffer;
         }
+
+        public bool CanCast(ISkill spell, SkillModification spellModification) => false;
 
         public void Enter()
         {
-            _caster.ActiveCast = _actionBuffer.NextSkill.Create(null);
-            _actionBuffer.NextSkill = null;
+            //_caster.ActiveCast = _actionBuffer.NextSkill.Create(null);
+            //_actionBuffer.NextSkill = null;
         }
 
-        public void Exit() => _caster.ActiveCast = null;
+        public void Exit() => _model.ActiveCast = null;
 
         public void Update(float deltaTime)
         {
-            _caster.ActiveCast.Execute(deltaTime);
-        }
-    }
+            if(_model.ActiveCast == null)
+            {
+                return;
+            }
 
-    public class IdleToDeadTransition : ITransition<IUnitState>
-    {
-        private readonly IKillable _model;
-
-        public IdleToDeadTransition(Dead nextState, IKillable model)
-        {
-            NextState = nextState;
-            _model = model;
+            _model.ActiveCast.Update(deltaTime);
         }
 
-        public bool CanTransit => _model.Alive == false;
-
-        public IUnitState NextState { get; }
-    }
-
-    public class DeadToIdleTransition : ITransition<IUnitState>
-    {
-        private readonly IKillable _model;
-
-        public DeadToIdleTransition(IUnitState nextState, IKillable model)
-        {
-            _model = model;
-            NextState = nextState;
-        }
-
-        public bool CanTransit => _model.Alive;
-
-        public IUnitState NextState { get; }
-    }
-
-    public class IdleToCastingTransition : ITransition<IUnitState>
-    {
-        private readonly ActionBuffer _actionBuffer;
-
-        public IdleToCastingTransition(IUnitState nextState, ActionBuffer actionBuffer)
-        {
-            _actionBuffer = actionBuffer;
-            NextState = nextState;
-        }
-
-        public bool CanTransit => _actionBuffer.NextSkill != null;
-
-        public IUnitState NextState { get; }
-    }
-
-    public class CastingToIdleTransition : ITransition<IUnitState>
-    {
-        private readonly ICaster _model;
-
-        public CastingToIdleTransition(IUnitState nextState, ICaster model)
-        {
-            _model = model;
-            NextState = nextState;
-        }
-
-        public bool CanTransit => _model.ActiveCast.InProgress == false;
-
-        public IUnitState NextState { get; }
+        public bool FinishedCast() => _model.ActiveCast == null || !_model.ActiveCast.IsActive;
     }
 }

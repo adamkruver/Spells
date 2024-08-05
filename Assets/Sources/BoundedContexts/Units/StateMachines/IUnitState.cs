@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-using Frameworks.StateMachines;
+﻿using Frameworks.StateMachines;
 
 using Sources.Frameworks.LifeCycles;
 

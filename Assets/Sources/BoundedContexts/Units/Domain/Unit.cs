@@ -1,5 +1,3 @@
-using System;
-
 using Server.Combat.Domain.Skills;
 
 namespace Sources.BoundedContexts.Units.Domain
@@ -11,14 +9,13 @@ namespace Sources.BoundedContexts.Units.Domain
 
     public interface ICaster
     {
-        ISkillStrategy ActiveCast { get; set; }
+        ISkillHandler ActiveCast { get; set; }
     }
 
     public class Unit : IKillable, ICaster
     {
-        public bool Alive { get; set; }
-
-        public ISkillStrategy ActiveCast { get; set; }
+        public bool Alive { get; set; } = true;
+        public ISkillHandler ActiveCast { get; set; }
 
         public ISkill GetSkillInSlot(int slotId)
         {

@@ -1,29 +1,26 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
+﻿using Server.Combat.Domain.Skills;
 
-using Server.Combat.Domain.Common;
-using Server.Combat.Domain.Skills;
-
-using Sources.BoundedContexts.Units.Domain;
-using Sources.BoundedContexts.Units.Presentation.Presenters;
 using Sources.Frameworks.Mvp;
 
 namespace Sources.BoundedContexts.Units.Presentation.Views
 {
     public class UnitView : View<Assets.Sources.BoundedContexts.Units.Infrastructure.Contollers.UnitPresenter>, IUnitView
     {
+        private void Update()
+        {
+            if (Presenter == null)
+            {
+                enabled = false;
+                return;
+            }
+
+            Presenter.Update(UnityEngine.Time.deltaTime);
+        }
+
         public void UseSkill(ISkill skill) => Presenter.UseSkill(skill);
-
-        //public void UseSkill(ISkillStrategyFactory attackSkill) => 
-        //    Presenter.UseSkill(attackSkill);
-
-        //public void Tick(float deltaTime) =>
-        //    Presenter.Tick(deltaTime);
-
-        void IUpdatable.Update(float deltaTime) => throw new System.NotImplementedException();
     }
 
-    public interface IUnitView : IUpdatable
+    public interface IUnitView
     {
         void UseSkill(ISkill skill);
     }
